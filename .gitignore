@@ -1,6 +1,12 @@
 pyratbay/
 repack/
 
+run02/*solar.cfg
+run02/*.atm
+run02/*.dat
+run02/*.png
+run02/*.log
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
