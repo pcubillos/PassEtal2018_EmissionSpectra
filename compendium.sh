@@ -4,7 +4,7 @@ topdir=`pwd`
 # Clone (download) the necessary code:
 git clone --recursive https://github.com/pcubillos/pyratbay
 cd $topdir/pyratbay
-git checkout bb64088
+git checkout 6844402
 make
 
 cd $topdir
@@ -32,25 +32,18 @@ tar -xvzf apjs504015_data.tar.gz
 rm -f apjs504015_data.tar.gz ReadMe Table_S1.txt Table_S2.txt \
       Table_S3.txt Table_S6.par
 
-# Download TiO data:
-#cd $topdir/inputs
-#wget http://kurucz.harvard.edu/molecules/tio/tioschwenke.bin
-#wget http://kurucz.harvard.edu/molecules/tio/tiopart.dat
-
 
 # Generate partition-function files for H2O and NH3:
 cd $topdir/run01
 python $topdir/code/pf_tips_H2O-NH3.py
 
-# Generate partition-function files for HCN, CH4, and TiO:
+# Generate partition-function files for HCN and CH4:
 cd $topdir/run01
 python $topdir/pyratbay/scripts/PFformat_Exomol.py  \
        $topdir/inputs/1H-12C-14N__Harris.pf \
        $topdir/inputs/1H-13C-14N__Larner.pf
 python $topdir/pyratbay/scripts/PFformat_Exomol.py \
        $topdir/inputs/12C-1H4__YT10to10.pf
-#python $topdir/pyratbay/scripts/PFformat_Schwenke_TiO.py \
-#       $topdir/inputs/tiopart.dat
 
 # Compress LBL databases:
 cd $topdir/run01
@@ -58,7 +51,6 @@ python $topdir/repack/repack.py repack_H2O.cfg
 python $topdir/repack/repack.py repack_HCN.cfg
 python $topdir/repack/repack.py repack_NH3.cfg
 python $topdir/repack/repack.py repack_CH4.cfg
-#python $topdir/repack/repack.py repack_TiO.cfg
 
 # Make TLI files:
 cd $topdir/run01
@@ -68,20 +60,15 @@ python $topdir/pyratbay/pbay.py -c tli_Li_CO.cfg
 python $topdir/pyratbay/pbay.py -c tli_exomol_HCN.cfg
 python $topdir/pyratbay/pbay.py -c tli_exomol_NH3.cfg
 python $topdir/pyratbay/pbay.py -c tli_exomol_CH4.cfg
-#python $topdir/pyratbay/pbay.py -c tli_Schwenke_TiO.cfg
 
 # Make opacity file
 cd $topdir/run01
 python $topdir/pyratbay/pbay.py -c opacity_H2O-CH4-CO-CO2-HCN-NH3_300-3000K_0.3-33um.cfg
 
-# Make atmospheric files
-#cd $topdir/run01
-#python $topdir/pyratbay/pbay.py -c atm_wasp63b_1000K_0.03x.cfg
-
-# Radiative-equilibrium atmospheric models:
+# Compute radiative-equilibrium temperature profiles and spectra:
 cd $topdir/run02
-python $topdir/pyratbay/pbay.py -c radeq_wasp43b.cfg
+sh $topdir/code/run_radeq.sh
 
-# Posteriors plot:
-#cd $topdir/run02_BKM/
-#python $topdir/code/fig_posteriors.py
+# Temperature and emission plots:
+cd $topdir/run02
+python $topdir/code/make_plots.py
